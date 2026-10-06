@@ -1,0 +1,23 @@
+.DS_Store
+.env
+.idea/
+.vscode/
+*.log
+/bin/
+*.test
+*.out
+coverage.*
+
+# Claude Code files (never committed)
+.claude/
+CLAUDE.local.md
+CLAUDE.md
+.mcp.json
+
+# Local tool caches and Terraform working files (kept inside the repo)
+.tmp/
+.gocache/
+.gomodcache/
+.terraform/
+*.tfstate
+*.tfstate.*
