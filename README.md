@@ -53,6 +53,12 @@ _Steps 1 and 2 are written and checked offline against mocked AWS providers (M1)
 5. The drill measures RTO (time until serving again) and RPO (writes lost) from request logs.
 6. A runbook and a teardown script keep the lab reproducible and cheap.
 
+## Who it helps
+
+- **Who:** Teams planning disaster recovery on AWS.
+- **The problem:** A standby region drifts from the primary over time, and checking it usually means paying for a real deployment.
+- **How to use it:** Build both regions from one Terraform module and check them offline with mocked `terraform test` runs, a parity check and a cost estimate; nothing has run in a real AWS account yet.
+
 ## Tech stack
 
 | Area | In M1 | Planned |
