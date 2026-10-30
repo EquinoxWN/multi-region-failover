@@ -4,7 +4,7 @@ Thanks for helping. This is a HCL (Terraform) and Go project; issues and pull re
 
 ## Set up and check your change
 
-Needs Go 1.25+ (CI uses 1.26); make setup downloads the pinned Terraform into .tmp/bin and verifies it. Caches and virtual environments stay in git-ignored folders inside the repo.
+Needs Go 1.26+ (CI uses 1.26.10); make setup downloads the pinned Terraform into .tmp/bin and verifies it. Caches and virtual environments stay in git-ignored folders inside the repo.
 
 ```bash
 make setup   # install dependencies

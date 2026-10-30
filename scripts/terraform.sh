@@ -2,7 +2,7 @@
 # Download the pinned Terraform release into .tmp/bin once, verify it against HashiCorp's
 # published SHA-256 sums, and print the binary's path.
 set -eu
-VERSION=1.16.5
+VERSION=1.17.1
 os=$(uname -s | tr '[:upper:]' '[:lower:]')
 arch=$(uname -m)
 case "$arch" in

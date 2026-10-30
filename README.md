@@ -71,7 +71,7 @@ Languages: **HCL** (Terraform) and **Go**. The infrastructure is in [`terraform/
 
 ## Run it
 
-**Prerequisites:** Go 1.25+, `curl` and `unzip`. No AWS account is needed for anything in M1: `make setup` downloads the pinned Terraform (1.16.5) into `.tmp/bin`, checked against HashiCorp's SHA-256 sums, and the tests mock both AWS providers.
+**Prerequisites:** Go 1.26+, `curl` and `unzip`. No AWS account is needed for anything in M1: `make setup` downloads the pinned Terraform (1.17.1) into `.tmp/bin`, checked against HashiCorp's SHA-256 sums, and the tests mock both AWS providers.
 
 ```bash
 make setup   # Go modules, Terraform, terraform init (AWS provider)
