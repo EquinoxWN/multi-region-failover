@@ -209,6 +209,17 @@ run "a_standby_larger_than_the_primary_is_refused" {
   expect_failures = [var.standby]
 }
 
+run "certificates_must_be_acm_arns_in_their_own_region" {
+  command = plan
+  variables {
+    certificate_arns = {
+      primary = "arn:aws:acm:us-east-1:123456789012:certificate/primary"
+      standby = "arn:aws:acm:us-east-1:123456789012:certificate/standby"
+    }
+  }
+  expect_failures = [var.certificate_arns]
+}
+
 run "images_must_be_pinned_by_digest" {
   command = plan
   variables {

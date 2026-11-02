@@ -55,4 +55,29 @@ func TestMalformedSizingIsAnError(t *testing.T) {
 	if _, err := ReadSizing(dir, "standby"); err == nil {
 		t.Fatal("a text count must be an error")
 	}
+	for _, bad := range []string{"0.5", "-1", "1e9"} {
+		src := `variable "standby" {
+  default = { app_desired_count = ` + bad + `, app_cpu = 512, app_memory = 1024, db_instance_class = "db.r6g.large", db_instance_count = 1 }
+}`
+		if err := os.WriteFile(filepath.Join(dir, "variables.tf"), []byte(src), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := ReadSizing(dir, "standby"); err == nil {
+			t.Errorf("app_desired_count = %s must be an error, not truncated", bad)
+		}
+	}
+}
+
+func TestFargateCostScalesWithTheTaskCount(t *testing.T) {
+	one, err := Monthly(Sizing{AppDesiredCount: 1, AppCPU: 512, AppMemory: 1024, DBInstanceClass: "db.r6g.large", DBInstanceCount: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	three, err := Monthly(Sizing{AppDesiredCount: 3, AppCPU: 512, AppMemory: 1024, DBInstanceClass: "db.r6g.large", DBInstanceCount: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if math.Abs(three[0].Monthly-3*one[0].Monthly) > 1e-9 || math.Abs(three[1].Monthly-2*one[1].Monthly) > 1e-9 {
+		t.Fatalf("Fargate %.2f vs %.2f, Aurora %.2f vs %.2f", three[0].Monthly, one[0].Monthly, three[1].Monthly, one[1].Monthly)
+	}
 }

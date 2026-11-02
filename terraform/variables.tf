@@ -36,6 +36,14 @@ variable "app_image" {
 variable "certificate_arns" {
   description = "ACM certificate for the HTTPS listener in each region (primary and standby)."
   type        = object({ primary = string, standby = string })
+  validation {
+    # An ALB can only use an ACM certificate from its own region.
+    condition = (
+      can(regex("^arn:aws[a-z-]*:acm:${var.primary_region}:[0-9]{12}:certificate/.+$", var.certificate_arns.primary)) &&
+      can(regex("^arn:aws[a-z-]*:acm:${var.standby_region}:[0-9]{12}:certificate/.+$", var.certificate_arns.standby))
+    )
+    error_message = "certificate_arns must be ACM certificate ARNs, each in its own region (primary_region and standby_region)."
+  }
 }
 
 variable "db_engine_version" {

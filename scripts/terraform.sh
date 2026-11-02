@@ -17,9 +17,12 @@ dir=.tmp/bin
 mkdir -p "$dir"
 if [ ! -x "$dir/$exe" ]; then
   zip="terraform_${VERSION}_${os}_${arch}.zip"
-  curl -fsSLo "$dir/$zip" "https://releases.hashicorp.com/terraform/${VERSION}/${zip}"
-  curl -fsSLo "$dir/SHA256SUMS" "https://releases.hashicorp.com/terraform/${VERSION}/terraform_${VERSION}_SHA256SUMS"
+  # Bounded: 3 retries with curl's growing back-off, 15 s to connect, 5 minutes per file.
+  get="curl -fsSL --retry 3 --connect-timeout 15 --max-time 300"
+  $get -o "$dir/$zip" "https://releases.hashicorp.com/terraform/${VERSION}/${zip}"
+  $get -o "$dir/SHA256SUMS" "https://releases.hashicorp.com/terraform/${VERSION}/terraform_${VERSION}_SHA256SUMS"
   (cd "$dir" && grep " ${zip}\$" SHA256SUMS | sha256sum -c - >&2)
-  (cd "$dir" && unzip -o -q "$zip" "$exe" && rm -f "$zip")
+  # Extract next to the target and rename, so an interrupted run never leaves a half-written binary.
+  (cd "$dir" && rm -rf unpack && unzip -q "$zip" "$exe" -d unpack && mv -f "unpack/$exe" "$exe" && rm -rf unpack "$zip")
 fi
 echo "$dir/$exe"

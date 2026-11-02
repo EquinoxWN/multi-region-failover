@@ -5,6 +5,7 @@ package cost
 import (
 	"errors"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 
@@ -125,7 +126,13 @@ func fromValue(v cty.Value) (Sizing, error) {
 		if a.Type() != cty.Number {
 			return 0, fmt.Errorf("%s must be a number", k)
 		}
-		f, _ := a.AsBigFloat().Int64()
+		if !a.IsKnown() || a.IsNull() {
+			return 0, fmt.Errorf("%s must be a known number", k)
+		}
+		f, acc := a.AsBigFloat().Int64()
+		if acc != big.Exact || f < 0 || f > 1<<20 {
+			return 0, fmt.Errorf("%s must be a whole number from 0 to %d, got %s", k, 1<<20, a.AsBigFloat().String())
+		}
 		return int(f), nil
 	}
 	var s Sizing
