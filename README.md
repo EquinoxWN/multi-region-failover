@@ -9,7 +9,7 @@ Part of my **DevOps and Cloud** list · HCL · Go · core project
 
 ## Proof it works
 
-Both regions are planned and applied with mocked AWS providers, so every check runs in seconds without an AWS account: identical stacks, a warm standby, one encrypted global database, nothing private exposed, and five kinds of bad input refused. Three deliberately injected mistakes (public database, standby outside the global database, public task IPs) each fail a run:
+Both regions are planned and applied with mocked AWS providers, so every check runs in seconds without an AWS account: identical stacks, a warm standby, one encrypted global database, nothing private exposed, and six kinds of bad input refused. Three deliberately injected mistakes (public database, standby outside the global database, public task IPs) each fail a run:
 
 ![terraform test, go test and the dependency check](docs/proof/tests.jpg)
 
@@ -33,7 +33,7 @@ flowchart LR
   end
   PD -->|"Aurora Global Database<br/>storage replication"| SD
   M["one module: regional_stack"] -.-> P & S
-  T["terraform test<br/>mocked AWS, 9 runs"] -.-> M
+  T["terraform test<br/>mocked AWS, 10 runs"] -.-> M
   G["Go parity checker<br/>+ cost estimate"] -.-> M
   R53["Route 53 failover<br/>and drill (M2)"] -.-> PA & SA
 ```
@@ -76,7 +76,7 @@ Languages: **HCL** (Terraform) and **Go**. The infrastructure is in [`terraform/
 ```bash
 make setup   # Go modules, Terraform, terraform init (AWS provider)
 make lint    # gofmt, go vet, terraform fmt -check, terraform validate
-make test    # 7 Go tests, then terraform test (9 runs against mocked AWS)
+make test    # 10 Go tests, then terraform test (10 runs against mocked AWS)
 make check   # parity of the two stacks and the estimated monthly cost of each
 make audit   # govulncheck
 ```
@@ -89,10 +89,11 @@ Full numbers, the injected-bug checks and the outputs: [docs/results/m1.md](docs
 
 | Check | Result |
 |---|---|
-| Tests (`make test`) | **16 passed**: 7 Go tests and 9 `terraform test` runs, 0 failed |
+| Tests (`make test`) | **20 passed**: 10 Go tests and 10 `terraform test` runs, 0 failed |
+| Quality pass | 12 hand mutations of the checker, 9 killed before and all 12 after three new tests; two more on the new input checks, both killed: [docs/quality/2026-11-01.md](docs/quality/2026-11-01.md) |
 | Both regions | same module, image digest, engine version, zones and TLS policy; warm standby of one task and one database instance |
 | Security | encrypted, deletion-protected global database; per-region rotating KMS keys; no public database or task IPs; database reachable only from the API |
-| Refused inputs | same region twice, standby of zero, standby larger than primary, image tag instead of digest, overlapping VPC ranges |
+| Refused inputs | same region twice, standby of zero, standby larger than primary, image tag instead of digest, overlapping VPC ranges, a certificate from the wrong region |
 | Do the tests catch bugs? | public database instances, a standby outside the global database and public task IPs each fail a test run |
 | Standby cost (estimate, list prices) | 263.94 USD a month, 54% of the primary's 489.78 USD, before usage-based charges |
 | Lint / audit | gofmt, go vet, terraform fmt and validate clean; Go modules clean on OSV.dev; govulncheck clean |
@@ -101,9 +102,9 @@ Full numbers, the injected-bug checks and the outputs: [docs/results/m1.md](docs
 
 ```mermaid
 flowchart TB
-  T1["terraform test (9 runs)<br/>same stack, warm sizing, global DB,<br/>no exposure, 5 refused inputs"] --> TF["terraform/ root + modules/regional_stack"]
-  P["parity (4, Go)<br/>drift between the two module calls"] --> TF
-  C["cost (3, Go)<br/>monthly estimate from sizing"] --> V["terraform/variables.tf"]
+  T1["terraform test (10 runs)<br/>same stack, warm sizing, global DB,<br/>no exposure, 6 refused inputs"] --> TF["terraform/ root + modules/regional_stack"]
+  P["parity (5, Go)<br/>drift between the two module calls"] --> TF
+  C["cost (4, Go)<br/>monthly estimate from sizing"] --> V["terraform/variables.tf"]
 ```
 
 ## Roadmap
@@ -144,6 +145,7 @@ What this repo must show before it counts as done:
 - [ADR 0002: warm standby with Aurora Global Database](docs/adr/0002-warm-standby-with-aurora-global-database.md)
 - [ADR 0003: verify offline with mocks and a parity check](docs/adr/0003-verify-offline-with-mocks-and-a-parity-check.md)
 - [M1 results](docs/results/m1.md)
+- [Quality check 2026-11-01](docs/quality/2026-11-01.md)
 
 ## Scope
 

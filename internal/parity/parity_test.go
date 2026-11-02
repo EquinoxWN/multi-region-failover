@@ -80,6 +80,22 @@ func TestDriftIsReported(t *testing.T) {
 	}
 }
 
+func TestAThirdStackOrAOneSidedBlockIsDrift(t *testing.T) {
+	third := good + `
+module "extra" {
+  source = "./modules/regional_stack"
+  role   = "primary"
+}
+`
+	if rep := check(t, third); rep.OK() || !strings.Contains(strings.Join(rep.Violations, "\n"), "expected exactly two stacks") {
+		t.Errorf("a third stack: violations %v", rep.Violations)
+	}
+	block := strings.Replace(good, "  depends_on = [module.primary]", "  depends_on = [module.primary]\n  lifecycle {\n    prevent_destroy = true\n  }", 1)
+	if rep := check(t, block); rep.OK() || !strings.Contains(strings.Join(rep.Violations, "\n"), "block:lifecycle is set only on the standby") {
+		t.Errorf("a block on one side: violations %v", rep.Violations)
+	}
+}
+
 func TestBadInputIsAnError(t *testing.T) {
 	if _, err := Check(t.TempDir()); err == nil {
 		t.Fatal("a directory without .tf files must be an error")

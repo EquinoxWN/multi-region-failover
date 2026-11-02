@@ -15,7 +15,7 @@ lint:
 	$(TF) fmt -check -recursive terraform
 	cd terraform && $(TF) validate
 
-# Go tests (parity checker, cost estimate), then terraform test: 9 runs that plan and apply
+# Go tests (parity checker, cost estimate), then terraform test: 10 runs that plan and apply
 # both regions against mocked AWS providers, with no AWS account.
 test:
 	go test -count=1 ./...

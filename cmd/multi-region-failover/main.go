@@ -17,6 +17,7 @@ func main() {
 	os.Exit(run(*dir))
 }
 
+// run checks parity and prints the cost; 0 ok, 1 drift, 2 bad input.
 func run(dir string) int {
 	rep, err := parity.Check(dir)
 	if err != nil {
