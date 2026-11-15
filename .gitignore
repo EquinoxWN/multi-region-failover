@@ -18,6 +18,7 @@ CLAUDE.md
 .tmp/
 .gocache/
 .gomodcache/
+.gopath/
 .terraform/
 *.tfstate
 *.tfstate.*
