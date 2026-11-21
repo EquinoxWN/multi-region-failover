@@ -136,18 +136,20 @@ func fromValue(v cty.Value) (Sizing, error) {
 		return int(f), nil
 	}
 	var s Sizing
-	var err error
-	if s.AppDesiredCount, err = num("app_desired_count"); err != nil {
-		return s, err
-	}
-	if s.AppCPU, err = num("app_cpu"); err != nil {
-		return s, err
-	}
-	if s.AppMemory, err = num("app_memory"); err != nil {
-		return s, err
-	}
-	if s.DBInstanceCount, err = num("db_instance_count"); err != nil {
-		return s, err
+	for _, f := range []struct {
+		key string
+		dst *int
+	}{
+		{"app_desired_count", &s.AppDesiredCount},
+		{"app_cpu", &s.AppCPU},
+		{"app_memory", &s.AppMemory},
+		{"db_instance_count", &s.DBInstanceCount},
+	} {
+		n, err := num(f.key)
+		if err != nil {
+			return s, err
+		}
+		*f.dst = n
 	}
 	if !v.Type().HasAttribute("db_instance_class") || v.GetAttr("db_instance_class").Type() != cty.String {
 		return s, errors.New("db_instance_class must be a string")

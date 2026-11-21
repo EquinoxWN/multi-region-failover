@@ -22,3 +22,9 @@ CLAUDE.md
 .terraform/
 *.tfstate
 *.tfstate.*
+# Secrets
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
